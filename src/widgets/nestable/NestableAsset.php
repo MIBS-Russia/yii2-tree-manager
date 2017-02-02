@@ -13,7 +13,7 @@ class NestableAsset extends AssetBundle
     /**
      * @var string
      */
-    public $sourcePath = '@vendor/voskobovich/yii2-tree-manager/src/widgets/nestable/assets';
+    public $sourcePath = '@vendor/tol17/yii2-tree-manager/src/widgets/nestable/assets';
 
     /**
      * @var array
