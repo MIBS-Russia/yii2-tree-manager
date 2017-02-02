@@ -143,7 +143,8 @@ class Nestable extends Widget
 
         foreach ($children as $n => $node) {
             $items[$n]['id'] = $node->getPrimaryKey();
-            $items[$n]['name'] = $node->getAttribute($this->nameAttribute);
+            $attr = $this->nameAttribute;
+            $items[$n]['name'] = $node->$attr;
             $items[$n]['children'] = $this->getNode($node);
             $items[$n]['update-url'] = Url::to([$this->advancedUpdateRoute, 'id' => $node->getPrimaryKey()]);
         }
