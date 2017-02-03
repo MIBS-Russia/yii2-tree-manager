@@ -1,6 +1,6 @@
 # Tree Manager for Yii2
 
-Виджет для управления деревом.
+Виджет для управления деревом. Основан на виджете [Vitaly Voskobovich](https://github.com/voskobovich/yii2-tree-manager)
 
 Внимание!
 -----
