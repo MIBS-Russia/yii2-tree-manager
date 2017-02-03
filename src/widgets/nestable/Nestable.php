@@ -87,6 +87,8 @@ class Nestable extends Widget
      * @var array
      */
     private $_items = [];
+    
+    public $languages = [];
 
     /**
      * Инициализация плагина
@@ -120,9 +122,11 @@ class Nestable extends Widget
 
         /** @var ActiveRecord|TreeInterface $model */
         $model = $this->modelClass;
-
+        
         /** @var ActiveRecord[]|TreeInterface[] $rootNodes */
         $rootNodes = $model::find()->roots()->all();
+        
+        $this->languages = \lav45\translate\models\Lang::getList();
 
         if (!empty($rootNodes[0])) {
             /** @var ActiveRecord|TreeInterface $items */
@@ -146,7 +150,7 @@ class Nestable extends Widget
             $attr = $this->nameAttribute;
             $items[$n]['name'] = $node->$attr;
             $items[$n]['children'] = $this->getNode($node);
-            $items[$n]['update-url'] = Url::to([$this->advancedUpdateRoute, 'id' => $node->getPrimaryKey()]);
+            $items[$n]['translate-btn'] = $this->getTranslateButtons($node);
         }
 
         return $items;
@@ -423,12 +427,11 @@ HTML;
             'data-action' => 'save',
             'class' => 'btn btn-success btn-sm',
         ]);
-        echo Html::a(Yii::t('vendor/voskobovich/yii2-tree-manager/widgets/nestable', 'Advanced editing'),
-            $item['update-url'], [
-                'data-action' => 'advanced-editing',
-                'class' => 'btn btn-default btn-sm',
-                'target' => '_blank'
-            ]);
+
+        foreach ($item['translate-btn']  as $btn) {
+            echo $btn;
+        }
+        
         echo Html::button(Yii::t('vendor/voskobovich/yii2-tree-manager/widgets/nestable', 'Delete'), [
             'data-action' => 'delete',
             'class' => 'btn btn-danger btn-sm'
@@ -442,5 +445,38 @@ HTML;
         }
 
         echo Html::endTag('li');
+    }
+    
+    protected function getTranslateButtons($model)
+    {
+        $translateBtn = [];
+        
+        foreach ($this->languages as $lang_id => $lang) {
+            $name = "update-$lang_id";
+            if (!isset($translateBtn[$name])) {
+                $translateBtn[$name] = $this->translateBtnTemplate($model, $lang, $lang_id);
+            }
+        }
+        
+        return $translateBtn;
+    }
+    
+    private function translateBtnTemplate($model, $lang, $lang_id) {
+        $params['id'] = $model->getPrimaryKey();
+        $params['lang_id'] = $lang_id;
+        $params[0] = Yii::$app->controller->id . '/update';
+
+        $url = Url::toRoute($params);
+        
+        $color = $model->hasTranslate($lang_id) ? 'info' : 'default';
+
+        $options = [
+            'class' => "btn btn-xs btn-$color",
+            'title' => "Edit $lang version",
+            'data-pjax' => '0',
+        ];
+
+        return Html::a('<span class="glyphicon glyphicon-pencil"></span> ' . $lang, $url, $options);
+        
     }
 }
